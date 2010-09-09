@@ -1,0 +1,15 @@
+*.pyc
+*.pyo
+
+# Mac OS X stuff
+.DS_Store
+
+# Buildout stuff
+.installed.cfg
+bin/
+develop-eggs/
+downloads/
+eggs/
+parts/
+src/*.egg-info
+
