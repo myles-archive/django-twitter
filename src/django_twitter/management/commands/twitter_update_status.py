@@ -1,23 +1,29 @@
+import logging
+
 from django.core.management.base import BaseCommand, CommandError
+from django.conf import settings
 
-import tweepy
+from django_twitter import utils
 
-from django_twitter.settings import TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, TWITTER_ACCESS_KEY, TWITTER_ACCESS_SECRET
+log = logging.getLogger("django_twitter.management.commands.twitter_update_status")
 
 class Command(BaseCommand):
 	help = 'Update your twitter status with a tweet.'
 	
 	def handle(self, *args, **options):
-		if TWITTER_CONSUMER_KEY and TWITTER_CONSUMER_SECRET and TWITTER_ACCESS_KEY and TWITTER_ACCESS_SECRET:
-			auth = tweepy.OAuthHandler(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
-			auth.set_access_token(TWITTER_ACCESS_KEY, TWITTER_ACCESS_SECRET)
-			api = tweepy.API(auth)
-			
+		level = { '0': logging.WARN, '1': logging.INFO, '2': logging.DEBUG }[options.get('verbosity', '0')]
+		logging.basicConfig(level=level, format="%(name)s: %(levelname)s: %(message)s")
+		
+		api = utils.auth()
+		
+		if api:
 			status = raw_input("What's happening?: ").strip()
 			
-			if status <= 140:
-				return "This tweet is to long."
+			if len(status) > 140:
+				return log.warn("This tweet is to long. It has %s charaters.", len(status))
 			
-			status = api.update_status(status)
-			
-			print "http://twitter.com/%s/status/%s" % (status.author.screen_name, status.id)
+			if not settings.DEBUG:
+				status = api.update_status(status)
+				log.info("http://twitter.com/%s/status/%s" % (status.author.screen_name, status.id))
+			else:
+				return log.debug(status)

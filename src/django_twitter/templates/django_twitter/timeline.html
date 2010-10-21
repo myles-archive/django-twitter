@@ -1,0 +1,51 @@
+{% extends "admin/base_site.html" %}
+{% load adminmedia i18n %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/changelists.css" />
+{% endblock %}
+
+{% block bodyclass %}change-list{% endblock %}
+
+{% if not is_popup %}
+    {% block breadcrumbs %}
+        <div class="breadcrumbs">
+            <a href="../../">
+                {% trans "Home" %}
+            </a>
+            &rsaquo; 
+            <a href="../">
+                {% trans "Twitter" %}
+            </a>
+            &rsaquo; 
+            {% trans "Timeline" %}
+        </div>
+    {% endblock %}
+{% endif %}
+
+{% block coltype %}flex{% endblock %}
+
+{% block content %}
+    <div id="content-main">
+        <div class="module" id="changelist">
+            <table cellspacing="0" id="result_list">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Author</th>
+                        <th>Tweet</th>
+                    </tr>
+                </thead>
+                <tobdy>
+                    {% for tweet in tweets %}
+                    <tr class="{% cycle 'row1' 'row2' %}">
+                        <td><a href="http://twitter.com/{{ tweet.author.screen_name }}/status/{{ tweet.id }}">{{ tweet.created_at|time }}</a></td>
+                        <td><a href="http://twitter.com/{{ tweet.author.screen_name }}">{{ tweet.author.screen_name }}</a></td>
+                        <td>{{ tweet.text|urlize }}</td>
+                    </tr>
+                    {% endfor %}
+            </table>
+        <div>
+    </div>
+{% endblock %}
